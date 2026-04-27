@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bark lead pipeline: disqualification analysis | Q3 FY26 | Findex</title>
+<style>
+:root {
+  --fx-midnight: #1B1F22;
+  --fx-orange: #D43D27;
+  --fx-orange-bright: #EE4823;
+  --fx-white: #FFFFFF;
+  --fx-grey-light: #F2F5F6;
+  --fx-grey-mid: #BAC3C7;
+  --fx-grey-dark: #5F6E78;
+  --fx-navy: #2E3C49;
+  --fx-charcoal: #252A30;
+  --fx-blue: #0EACBD;
+  --fx-purple: #516CB3;
+  --fx-green: #8DC63F;
+  --fx-blue-mid: #5DABDF;
+  --fx-teal-light: #68C9D0;
+  --fx-blue-steel: #489DB1;
+  --fx-green-light: #6AC288;
+  --fx-teal-muted: #99C4C7;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Arial, sans-serif;
+  font-weight: 400;
+  color: var(--fx-midnight);
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  background: var(--fx-white);
+}
+
+h1, h2, h3, h4 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--fx-midnight);
+}
+
+/* Header */
+.header {
+  background: var(--fx-midnight);
+  color: var(--fx-white);
+  padding: 32px 48px;
+}
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.header h1 { font-size: 24px; color: var(--fx-white); margin-bottom: 4px; }
+.header-sub { font-size: 14px; color: var(--fx-grey-mid); }
+.header-logo { font-size: 20px; font-weight: 700; letter-spacing: 0.12em; color: var(--fx-white); }
+.header-logo-bar { width: 48px; height: 3px; background: var(--fx-orange); margin-top: 4px; }
+
+/* Content */
+.content { max-width: 1200px; margin: 0 auto; padding: 32px 48px 64px; }
+
+/* Findex dash */
+.dash { width: 50px; height: 3px; background: var(--fx-orange); margin: 6px 0 20px; }
+
+/* Sections */
+.section { margin-bottom: 40px; }
+.section-title { font-size: 18px; margin-bottom: 0; }
+
+/* Metric cards */
+.metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+.metric-card { background: var(--fx-grey-light); border-radius: 4px; padding: 20px 24px; }
+.metric-label { font-size: 12px; color: var(--fx-grey-dark); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.metric-val { font-size: 28px; font-weight: 700; line-height: 1.1; }
+.metric-sub { font-size: 12px; color: var(--fx-grey-dark); margin-top: 4px; }
+.metric-val.orange { color: var(--fx-orange); }
+
+/* Segment toggle */
+.seg-toggle {
+  display: inline-flex;
+  gap: 0;
+  margin-bottom: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--fx-grey-mid);
+}
+.seg-btn {
+  padding: 10px 24px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: Arial, sans-serif;
+  border: none;
+  background: var(--fx-white);
+  color: var(--fx-midnight);
+  cursor: pointer;
+  transition: all 0.15s;
+  border-right: 1px solid var(--fx-grey-mid);
+}
+.seg-btn:last-child { border-right: none; }
+.seg-btn:hover { background: var(--fx-grey-light); }
+.seg-btn.active { background: var(--fx-blue); color: var(--fx-white); }
+
+/* Charts */
+.chart-container { position: relative; width: 100%; margin-bottom: 12px; }
+
+/* Legend */
+.legend-row { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12px; color: var(--fx-grey-dark); margin-bottom: 10px; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+
+/* Tables */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table thead th {
+  background: var(--fx-midnight);
+  color: var(--fx-white);
+  font-weight: 700;
+  padding: 10px 14px;
+  text-align: left;
+}
+.data-table thead th.right { text-align: right; }
+.data-table tbody td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--fx-grey-mid);
+}
+.data-table tbody td.right { text-align: right; }
+.data-table tbody td.bold { font-weight: 700; }
+.data-table tbody tr:nth-child(even) td { background: var(--fx-grey-light); }
+.data-table tbody tr:hover td { background: #e2e8ea; }
+
+/* Inline bars */
+.bar-cell { position: relative; }
+.bar-inline {
+  display: inline-block;
+  height: 14px;
+  border-radius: 2px;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+/* Insight callout */
+.insight-box {
+  background: var(--fx-grey-light);
+  border-left: 4px solid var(--fx-orange);
+  border-radius: 0 4px 4px 0;
+  padding: 16px 20px;
+  margin: 16px 0 24px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--fx-navy);
+}
+.insight-box strong { font-weight: 700; }
+
+/* Two-col */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+
+/* Footer */
+.footer {
+  background: var(--fx-charcoal);
+  color: var(--fx-grey-mid);
+  padding: 24px 48px;
+  font-size: 12px;
+}
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Print */
+@media print {
+  .seg-toggle { display: none; }
+  .header { padding: 24px 32px; }
+  .content { padding: 24px 32px 32px; }
+  .section { page-break-inside: avoid; }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .header { padding: 24px; }
+  .content { padding: 24px; }
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+  .footer { padding: 16px 24px; }
+  .footer-inner { flex-direction: column; gap: 4px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <h1>Bark lead pipeline: disqualification analysis</h1>
+      <div class="header-sub">Q3 FY26 (1 January 2026 to 31 March 2026) &middot; Data extracted 30 March 2026</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="header-logo">FINDEX</div>
+      <div class="header-logo-bar"></div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="seg-toggle">
+    <button class="seg-btn active" onclick="setSeg('all')">All Bark leads</button>
+    <button class="seg-btn" onclick="setSeg('ba')">Business Advisory</button>
+    <button class="seg-btn" onclick="setSeg('wealth')">Wealth Management</button>
+  </div>
+
+  <div id="metrics" class="metrics-grid"></div>
+
+  <div class="section">
+    <h2 class="section-title">Disqualified leads by primary reason</h2>
+    <div class="dash"></div>
+    <div id="reason-legend" class="legend-row"></div>
+    <div class="chart-container" style="height:340px;"><canvas id="reasonChart"></canvas></div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Monthly disqualification volume</h2>
+    <div class="dash"></div>
+    <div class="chart-container" style="height:280px;"><canvas id="monthChart"></canvas></div>
+    <div class="insight-box" id="monthInsight"></div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Lost contact deep dive</h2>
+    <div class="dash"></div>
+    <p style="font-size:13px;color:var(--fx-grey-dark);margin-bottom:16px;">Lost Contact is the dominant disqualification reason across both segments. The sub reasons below separate leads where no contact was ever made from those who initially responded then disengaged.</p>
+    <div id="lc-metrics" class="metrics-grid" style="grid-template-columns: repeat(3, 1fr);"></div>
+    <div class="chart-container" style="height:260px;"><canvas id="lcChart"></canvas></div>
+    <div class="insight-box" id="lcInsight"></div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Contact effort by disqualify reason</h2>
+    <div class="dash"></div>
+    <p style="font-size:13px;color:var(--fx-grey-dark);margin-bottom:16px;">Average call and email attempts before disqualification. Excludes Duplicate Lead and Existing Client.</p>
+    <div class="chart-container" style="height:300px;"><canvas id="effortChart"></canvas></div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Call attempt distribution: Lost Contact leads</h2>
+    <div class="dash"></div>
+    <div class="two-col" id="callDist"></div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Sub reason detail</h2>
+    <div class="dash"></div>
+    <div id="subTable"></div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Key observations and recommendations</h2>
+    <div class="dash"></div>
+    <div id="recommendations"></div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div class="footer-inner">
+    <div>Findex &middot; Bark lead pipeline analysis &middot; Confidential</div>
+    <div>Prepared by Findex Marketing &middot; Data as at 30 March 2026</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const C = {
+  blue:'#0EACBD', purple:'#516CB3', green:'#8DC63F', blueMid:'#5DABDF',
+  tealLight:'#68C9D0', blueSteel:'#489DB1', greenLight:'#6AC288', tealMuted:'#99C4C7',
+  orange:'#D43D27', greyMid:'#BAC3C7'
+};
+const SERIES = [C.blue, C.purple, C.green, C.blueMid, C.tealLight, C.blueSteel, C.greenLight, C.tealMuted, C.orange, C.greyMid];
+
+Chart.defaults.font.family = 'Arial, sans-serif';
+Chart.defaults.font.size = 12;
+
+const D = {
+  ba: {
+    label:'Business Advisory', total:572, dq:410, converted:46,
+    dqRate:71.7, convRate:8.0,
+    reasons: {
+      'Lost Contact':{n:274,avgC:3.25,avgE:2.55},
+      'Not Ideal Client Profile':{n:41,avgC:1.66,avgE:0.49},
+      'Lost to Competitor':{n:40,avgC:2.78,avgE:0.98},
+      'Timing':{n:14,avgC:3.21,avgE:0.71},
+      'Pricing':{n:11,avgC:2.64,avgE:1.27},
+      'Invalid Contact Details':{n:11,avgC:1.45,avgE:0.73},
+      'Duplicate Lead':{n:9,avgC:0.44,avgE:0.11},
+      'Other':{n:9,avgC:3.11,avgE:0.78},
+      'Existing Client':{n:1,avgC:2,avgE:1}
+    },
+    monthly:{jan:122,feb:192,mar:96},
+    mAvgC:{jan:3.19,feb:2.86,mar:2.67}, mAvgE:{jan:2.43,feb:2.03,mar:1.19},
+    lc:{
+      'No response to any contact attempts':{n:200,avgC:3.0,avgE:2.7},
+      'Disengaged after initial response':{n:58,avgC:4.0,avgE:2.1}
+    },
+    callDist:{zero:1.1,low:29.6,mid:56.9,high:12.4},
+    subs:[
+      {r:'No response to any contact attempts',n:200,avgC:3.0,avgE:2.7},
+      {r:'Disengaged after initial response',n:58,avgC:4.0,avgE:2.1},
+      {r:'Low needs',n:41,avgC:null,avgE:null},
+      {r:'Not Applicable',n:20,avgC:null,avgE:null},
+      {r:'Lead response time',n:17,avgC:null,avgE:null},
+      {r:'Not ready yet',n:12,avgC:null,avgE:null},
+      {r:'Brand preference',n:11,avgC:null,avgE:null},
+      {r:'Price shopping',n:11,avgC:null,avgE:null},
+      {r:'Incompatible lead / enquiry',n:8,avgC:null,avgE:null},
+      {r:'Staying with existing provider',n:5,avgC:null,avgE:null},
+      {r:'Service misfit',n:5,avgC:null,avgE:null},
+      {r:'Other / miscellaneous',n:12,avgC:null,avgE:null}
+    ]
+  },
+  wealth: {
+    label:'Wealth Management', total:1108, dq:711, converted:246,
+    dqRate:64.2, convRate:22.2,
+    reasons: {
+      'Lost Contact':{n:469,avgC:2.31,avgE:3.13},
+      'Lost to Competitor':{n:84,avgC:1.65,avgE:1.10},
+      'Not Ideal Client Profile':{n:51,avgC:2.16,avgE:0.88},
+      'Other':{n:39,avgC:1.90,avgE:1.36},
+      'Timing':{n:38,avgC:1.97,avgE:0.84},
+      'Duplicate Lead':{n:12,avgC:0.17,avgE:0.08},
+      'Pricing':{n:10,avgC:1.80,avgE:1.30},
+      'Invalid Contact Details':{n:6,avgC:1.0,avgE:0.33},
+      'Not Decision Maker':{n:2,avgC:2,avgE:1}
+    },
+    monthly:{jan:259,feb:314,mar:138},
+    mAvgC:{jan:2.17,feb:2.15,mar:2.01}, mAvgE:{jan:2.64,feb:2.54,mar:1.62},
+    lc:{
+      'No response to any contact attempts':{n:303,avgC:2.3,avgE:3.4},
+      'Disengaged after initial response':{n:131,avgC:2.3,avgE:2.6}
+    },
+    callDist:{zero:1.5,low:74.4,mid:18.6,high:5.5},
+    subs:[
+      {r:'No response to any contact attempts',n:303,avgC:2.3,avgE:3.4},
+      {r:'Disengaged after initial response',n:131,avgC:2.3,avgE:2.6},
+      {r:'Not Applicable',n:55,avgC:null,avgE:null},
+      {r:'Low needs',n:42,avgC:null,avgE:null},
+      {r:'Staying with existing provider',n:30,avgC:null,avgE:null},
+      {r:'Brand preference',n:24,avgC:null,avgE:null},
+      {r:'Not ready yet',n:22,avgC:null,avgE:null},
+      {r:'Lead response time',n:20,avgC:null,avgE:null},
+      {r:'Deferred project',n:15,avgC:null,avgE:null},
+      {r:'Service misfit',n:8,avgC:null,avgE:null},
+      {r:'Insufficient investable assets',n:7,avgC:null,avgE:null},
+      {r:'Other / miscellaneous',n:24,avgC:null,avgE:null}
+    ]
+  }
+};
+
+/* Merge helpers */
+function merge(a, b) {
+  const r = {};
+  for (const seg of [a,b]) for (const [k,v] of Object.entries(seg.reasons)) {
+    r[k] = r[k] || {n:0,_tc:0,_te:0};
+    r[k].n += v.n; r[k]._tc += v.avgC*v.n; r[k]._te += v.avgE*v.n;
+  }
+  for (const v of Object.values(r)) { v.avgC=+(v._tc/v.n).toFixed(2); v.avgE=+(v._te/v.n).toFixed(2); }
+  const lc = {};
+  for (const seg of [a,b]) for (const [k,v] of Object.entries(seg.lc)) {
+    lc[k] = lc[k] || {n:0,_tc:0,_te:0};
+    lc[k].n += v.n; lc[k]._tc += v.avgC*v.n; lc[k]._te += v.avgE*v.n;
+  }
+  for (const v of Object.values(lc)) { v.avgC=+(v._tc/v.n).toFixed(2); v.avgE=+(v._te/v.n).toFixed(2); }
+  return {
+    label:'All Bark leads', total:a.total+b.total, dq:a.dq+b.dq, converted:a.converted+b.converted,
+    dqRate:+((a.dq+b.dq)/(a.total+b.total)*100).toFixed(1),
+    convRate:+((a.converted+b.converted)/(a.total+b.total)*100).toFixed(1),
+    reasons:r, lc,
+    monthly:{jan:a.monthly.jan+b.monthly.jan, feb:a.monthly.feb+b.monthly.feb, mar:a.monthly.mar+b.monthly.mar}
+  };
+}
+
+function mergeSubs(a, b) {
+  const m = {};
+  for (const x of [...a,...b]) {
+    if (!m[x.r]) m[x.r]={r:x.r,n:0,_tc:0,_te:0,_cn:0};
+    m[x.r].n+=x.n;
+    if (x.avgC!==null) { m[x.r]._tc+=x.avgC*x.n; m[x.r]._te+=x.avgE*x.n; m[x.r]._cn+=x.n; }
+  }
+  return Object.values(m).map(x=>({r:x.r,n:x.n,avgC:x._cn?+(x._tc/x._cn).toFixed(1):null,avgE:x._cn?+(x._te/x._cn).toFixed(1):null})).sort((a,b)=>b.n-a.n);
+}
+
+let seg = 'all';
+let charts = {};
+
+function setSeg(s) {
+  seg = s;
+  document.querySelectorAll('.seg-btn').forEach((b,i) => {
+    b.classList.toggle('active', (s==='all'&&i===0)||(s==='ba'&&i===1)||(s==='wealth'&&i===2));
+  });
+  render();
+}
+
+function g() {
+  if (seg==='ba') return D.ba;
+  if (seg==='wealth') return D.wealth;
+  return merge(D.ba, D.wealth);
+}
+
+function destroyChart(name) { if (charts[name]) charts[name].destroy(); }
+
+function mc(label, val, sub, accent) {
+  return `<div class="metric-card"><div class="metric-label">${label}</div><div class="metric-val${accent?' orange':''}">${val}</div>${sub?`<div class="metric-sub">${sub}</div>`:''}</div>`;
+}
+
+function cdCard(title, cd) {
+  const bars = [
+    {label:'0 calls',pct:cd.zero,color:C.orange},
+    {label:'1-2 calls',pct:cd.low,color:C.blueMid},
+    {label:'3-4 calls',pct:cd.mid,color:C.blue},
+    {label:'5+ calls',pct:cd.high,color:C.purple}
+  ];
+  return `<div style="background:var(--fx-grey-light);border-radius:4px;padding:20px 24px;">
+    <div style="font-weight:700;font-size:14px;margin-bottom:12px;">${title}</div>
+    ${bars.map(b=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <span style="font-size:12px;color:var(--fx-grey-dark);width:60px;">${b.label}</span>
+      <div style="flex:1;height:20px;background:var(--fx-white);border-radius:3px;overflow:hidden;">
+        <div style="width:${b.pct}%;height:100%;background:${b.color};border-radius:3px;"></div>
+      </div>
+      <span style="font-size:13px;font-weight:700;width:48px;text-align:right;">${b.pct}%</span>
+    </div>`).join('')}
+  </div>`;
+}
+
+function render() {
+  const d = g();
+  const isAll = seg==='all';
+  const lcN = d.reasons['Lost Contact']?.n || 0;
+
+  /* Metrics */
+  document.getElementById('metrics').innerHTML = [
+    mc('Total leads',d.total.toLocaleString(),'Bark platform, Jan-Mar 2026'),
+    mc('Disqualified',d.dq.toLocaleString(),d.dqRate+'% of total','orange'),
+    mc('Converted',d.converted.toLocaleString(),d.convRate+'% of total'),
+    mc('Lost Contact',lcN.toLocaleString(),Math.round(lcN/d.dq*100)+'% of all DQ','orange')
+  ].join('');
+
+  /* Primary reason chart */
+  const sorted = Object.entries(d.reasons).sort((a,b)=>b[1].n-a[1].n);
+  document.getElementById('reason-legend').innerHTML = sorted.map((x,i)=>`<span class="legend-item"><span class="legend-swatch" style="background:${SERIES[i]}"></span>${x[0]}: ${x[1].n}</span>`).join('');
+
+  destroyChart('reason');
+  charts.reason = new Chart(document.getElementById('reasonChart'),{
+    type:'bar',
+    data:{labels:sorted.map(x=>x[0]),datasets:[{data:sorted.map(x=>x[1].n),backgroundColor:sorted.map((_,i)=>SERIES[i]),borderRadius:3,barThickness:24}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw} leads (${Math.round(ctx.raw/d.dq*100)}%)`}}},scales:{x:{grid:{color:'#BAC3C7'},ticks:{color:'#5F6E78'}},y:{grid:{display:false},ticks:{color:'#5F6E78',font:{size:11}}}}}
+  });
+
+  /* Monthly chart */
+  destroyChart('month');
+  const mData = isAll ? {
+    labels:['January','February','March'],
+    datasets:[
+      {label:'Business Advisory',data:[D.ba.monthly.jan,D.ba.monthly.feb,D.ba.monthly.mar],backgroundColor:C.blue,borderRadius:3},
+      {label:'Wealth Management',data:[D.wealth.monthly.jan,D.wealth.monthly.feb,D.wealth.monthly.mar],backgroundColor:C.purple,borderRadius:3}
+    ]
+  } : {
+    labels:['January','February','March'],
+    datasets:[{label:d.label,data:[d.monthly.jan,d.monthly.feb,d.monthly.mar],backgroundColor:C.blue,borderRadius:3}]
+  };
+  charts.month = new Chart(document.getElementById('monthChart'),{
+    type:'bar',data:mData,
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#5F6E78',font:{size:12,weight:'bold'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5F6E78'}},y:{grid:{color:'#BAC3C7'},ticks:{color:'#5F6E78'}}}}
+  });
+
+  const mInsEl = document.getElementById('monthInsight');
+  if (isAll) {
+    mInsEl.innerHTML = '<strong>Trend:</strong> February was the peak month for disqualifications (506 combined). March volumes dropped sharply, but this likely reflects leads still in progress rather than a genuine improvement. Average contact effort (calls and emails per lead) also declined month on month across both segments.';
+  } else if (seg==='ba') {
+    mInsEl.innerHTML = '<strong>Trend:</strong> BA disqualifications peaked in February (192) and halved in March (96). Average emails per DQ lead dropped from 2.4 in January to 1.2 in March, suggesting reduced follow-up activity or a backlog clearing exercise.';
+  } else {
+    mInsEl.innerHTML = '<strong>Trend:</strong> Wealth disqualifications peaked in February (314) then dropped to 138 in March. Average emails per DQ lead fell from 2.6 in January to 1.6 in March. Call averages remained relatively stable around 2.0 to 2.2.';
+  }
+
+  /* Lost Contact deep dive */
+  const nr = d.lc['No response to any contact attempts'] || {n:0,avgC:0,avgE:0};
+  const de = d.lc['Disengaged after initial response'] || {n:0,avgC:0,avgE:0};
+  const lcTotal = lcN || 1;
+
+  document.getElementById('lc-metrics').innerHTML = [
+    mc('No response at all',nr.n.toLocaleString(),Math.round(nr.n/lcTotal*100)+'% of Lost Contact'),
+    mc('Disengaged after response',de.n.toLocaleString(),Math.round(de.n/lcTotal*100)+'% of Lost Contact'),
+    mc('Avg calls (no response)',nr.avgC.toFixed(1),nr.avgE.toFixed(1)+' avg emails')
+  ].join('');
+
+  destroyChart('lc');
+  charts.lc = new Chart(document.getElementById('lcChart'),{
+    type:'bar',
+    data:{labels:['No response to\nany contact attempts','Disengaged after\ninitial response'],datasets:[
+      {label:'Avg calls',data:[nr.avgC,de.avgC],backgroundColor:C.blue,borderRadius:3,barThickness:40},
+      {label:'Avg emails',data:[nr.avgE,de.avgE],backgroundColor:C.purple,borderRadius:3,barThickness:40}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#5F6E78',font:{weight:'bold'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5F6E78',font:{size:11}}},y:{grid:{color:'#BAC3C7'},ticks:{color:'#5F6E78'},title:{display:true,text:'Average count per lead',color:'#5F6E78'}}}}
+  });
+
+  const lcInsEl = document.getElementById('lcInsight');
+  if (isAll) {
+    lcInsEl.innerHTML = '<strong>Contactability gap:</strong> 503 of 743 Lost Contact leads (67.7%) never responded to any outreach. These leads averaged 2.5 calls and 3.1 emails before disqualification. A further 189 leads (25.4%) initially engaged then went cold. The split between "never reached" and "disengaged" suggests two distinct problems: lead quality/intent at source, and follow-up cadence effectiveness.';
+  } else if (seg==='ba') {
+    lcInsEl.innerHTML = '<strong>BA contact pattern:</strong> 200 of 274 Lost Contact leads (73.0%) never responded despite an average of 3.0 calls and 2.7 emails. BA shows higher call persistence than Wealth, with 56.9% of Lost Contact leads receiving 3-4 call attempts. The 58 disengaged leads averaged 4.0 calls, suggesting the team does invest effort before disqualifying.';
+  } else {
+    lcInsEl.innerHTML = '<strong>Wealth contact pattern:</strong> 303 of 469 Lost Contact leads (64.6%) never responded. Critically, 74.4% of Wealth Lost Contact leads were disqualified after only 1-2 call attempts (vs 29.6% for BA). Wealth relies more on email (avg 3.4 emails vs 2.3 calls for no-response leads). This is a material gap in call effort that warrants discussion.';
+  }
+
+  /* Contact effort by reason */
+  destroyChart('effort');
+  const efLabels = sorted.filter(x=>x[0]!=='Duplicate Lead'&&x[0]!=='Existing Client').map(x=>x[0]);
+  charts.effort = new Chart(document.getElementById('effortChart'),{
+    type:'bar',
+    data:{labels:efLabels,datasets:[
+      {label:'Avg calls',data:efLabels.map(l=>d.reasons[l]?.avgC||0),backgroundColor:C.blue,borderRadius:3},
+      {label:'Avg emails',data:efLabels.map(l=>d.reasons[l]?.avgE||0),backgroundColor:C.purple,borderRadius:3}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#5F6E78',font:{weight:'bold'}}}},scales:{x:{grid:{display:false},ticks:{color:'#5F6E78',font:{size:10},maxRotation:45}},y:{grid:{color:'#BAC3C7'},ticks:{color:'#5F6E78'}}}}
+  });
+
+  /* Call distribution */
+  const cdEl = document.getElementById('callDist');
+  if (isAll) {
+    cdEl.style.gridTemplateColumns='1fr 1fr';
+    cdEl.innerHTML = cdCard('Business Advisory', D.ba.callDist) + cdCard('Wealth Management', D.wealth.callDist);
+  } else if (seg==='ba') {
+    cdEl.style.gridTemplateColumns='1fr';
+    cdEl.innerHTML = cdCard('Business Advisory', D.ba.callDist);
+  } else {
+    cdEl.style.gridTemplateColumns='1fr';
+    cdEl.innerHTML = cdCard('Wealth Management', D.wealth.callDist);
+  }
+
+  /* Sub reason table */
+  const subs = isAll ? mergeSubs(D.ba.subs, D.wealth.subs) : (seg==='ba' ? D.ba.subs : D.wealth.subs);
+  const maxS = Math.max(...subs.map(x=>x.n));
+  const totalS = subs.reduce((s,v)=>s+v.n,0);
+  document.getElementById('subTable').innerHTML = `<table class="data-table"><thead><tr><th>Sub reason</th><th class="right" style="width:70px">Count</th><th style="width:160px">Distribution</th><th class="right" style="width:80px">Avg calls</th><th class="right" style="width:80px">Avg emails</th></tr></thead><tbody>${subs.map(x=>`<tr><td>${x.r}</td><td class="right bold">${x.n}</td><td class="bar-cell"><span class="bar-inline" style="width:${Math.round(x.n/maxS*100)}%;background:${C.blue};opacity:0.25"></span><span style="font-size:12px;color:#5F6E78">${Math.round(x.n/totalS*100)}%</span></td><td class="right">${x.avgC!==null?x.avgC.toFixed(1):'-'}</td><td class="right">${x.avgE!==null?x.avgE.toFixed(1):'-'}</td></tr>`).join('')}</tbody></table>`;
+
+  /* Recommendations */
+  document.getElementById('recommendations').innerHTML = `
+    <div class="insight-box" style="border-left-color:${C.blue};">
+      <strong>1. Contact effort SLA review (Wealth).</strong> 74.4% of Wealth Lost Contact leads are disqualified after only 1-2 call attempts, compared to 29.6% for Business Advisory. We recommend establishing a minimum contact attempt threshold (e.g. 3 calls + 2 emails) before a lead can be moved to Lost Contact. This is the single highest-leverage change available.
+    </div>
+    <div class="insight-box" style="border-left-color:${C.purple};">
+      <strong>2. Lead quality signal enrichment.</strong> 92 leads were disqualified as Not Ideal Client Profile (41 BA, 51 Wealth). We should review whether Bark's lead qualification questions can be refined to filter these earlier, reducing wasted contact effort. Specific sub reasons like "Low needs" (83 leads) and "Insufficient investable assets" (7 Wealth) point to addressable qualification gaps.
+    </div>
+    <div class="insight-box" style="border-left-color:${C.green};">
+      <strong>3. Competitive loss analysis.</strong> 124 leads were Lost to Competitor (40 BA, 84 Wealth). "Brand preference" and "Staying with existing provider" account for 70 of these. A speed-to-lead review may help, alongside understanding whether Bark leads are shopping multiple providers simultaneously.
+    </div>
+    <div class="insight-box" style="border-left-color:${C.blueMid};">
+      <strong>4. March contact effort decline.</strong> Both segments show a material drop in average emails per DQ lead in March (BA: 2.4 to 1.2; Wealth: 2.6 to 1.6). If this reflects reduced capacity or prioritisation away from Bark leads, we should flag it. If it reflects a change in process, we need to understand whether conversion rates are also affected.
+    </div>
+    <div class="insight-box" style="border-left-color:${C.tealLight};">
+      <strong>5. Lead response time.</strong> 37 leads cite "Lead response time" as a sub reason for disqualification. These are leads who explicitly told us we were too slow. Time-to-first-touch data should be cross-referenced to establish whether there is a systematic delay in Bark lead routing.
+    </div>
+  `;
+}
+
+render();
+</script>
+</body>
+</html>
